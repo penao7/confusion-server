@@ -3,8 +3,12 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
+  "nodemonConfig": {
+    "watch": ["server"],
+    "ext": "js"
+  },
   "scripts": {
-    "start": "node ./bin/www"
+    "start": "node ./server/bin/www"
   },
   "dependencies": {
     "cookie-parser": "~1.4.4",
