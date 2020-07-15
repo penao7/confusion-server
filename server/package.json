@@ -5,9 +5,8 @@
   "type": "module",
   "nodemonConfig": {
     "watch": [
-      "server"
-    ],
-    "ext": "js"
+      "../server"
+    ]
   },
   "scripts": {
     "start": "node ./bin/www"
