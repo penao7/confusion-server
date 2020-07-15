@@ -1,9 +1,9 @@
 import express from 'express';
-var router = express.Router();
+var indexRouter = express.Router();
 
 /* GET home page. */
-router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express' });
+indexRouter.get('/', function(req, res, next) {
+  res.end('Index.html');
 });
 
-export { router as indexRouter };
+export default indexRouter;

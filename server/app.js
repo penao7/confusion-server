@@ -9,8 +9,8 @@ import session from 'express-session';
 import fs from 'session-file-store';
 
 // router imports
-import { indexRouter } from './routes/index.js';
-import { usersRouter } from './routes/users.js';
+import indexRouter from './routes/index.js';
+import userRouter from './routes/userRouter.js';
 import dishRouter from './routes/dishRouter.js';
 import promoRouter from './routes/promoRouter.js';
 import leaderRouter from './routes/leaderRouter.js';
@@ -47,38 +47,21 @@ app.use(session({
   store: new FileStore()
 }))
 
+// accessible routes without authentication
+app.use('/', indexRouter);
+app.use('/users', userRouter);
+
 // basic authentication
 const auth = (req, res, next) => {
-  console.log(req.session);
 
   if (!req.session.user) {
-    let authHeader = req.headers.authorization;
-
-    if (!authHeader) {
-      const err = new Error('You are not authenticated');
-
-      res.setHeader('WWW-Authenticate', 'Basic');
-      err.status = 401;
-      return next(err);
-    }
-
-    const auth = new Buffer.from(authHeader.split(' ')[1], 'base64').toString().split(':');
-    const username = auth[0];
-    const password = auth[1];
-
-    if (username === 'admin' && password === 'password') {
-      req.session.user = 'admin';
-      next();
-    }
-    else {
-      const err = new Error('You are not authenticated');
-      res.setHeader('WWW-Authenticate', 'Basic');
-      err.status = 401;
-      return next(err);
-    };
+    const err = new Error('You are not authenticated');
+    res.setHeader('WWW-Authenticate', 'Basic');
+    err.status = 401;
+    return next(err);
   }
   else {
-    if (req.session.user === 'admin') {
+    if (req.session.user === 'authenticated') {
       next();
     }
     else {
@@ -91,10 +74,8 @@ const auth = (req, res, next) => {
 
 app.use(auth);
 
-// default path and routers
+// other routes
 app.use(express.static(path.join(__dirname, 'public')));
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
 app.use('/dishes', dishRouter);
 app.use('/promotions', promoRouter);
 app.use('/leaders', leaderRouter);
