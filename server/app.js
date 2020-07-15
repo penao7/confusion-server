@@ -5,6 +5,8 @@ import { fileURLToPath } from 'url';
 import cookieParser from 'cookie-parser';
 import logger from 'morgan';
 import mongoose from 'mongoose';
+import session from 'express-session';
+import fs from 'session-file-store';
 
 // router imports
 import { indexRouter } from './routes/index.js';
@@ -27,19 +29,29 @@ connect.then((db) => {
 }, (err) => { console.log(err) });
 
 // express usage
+
 const app = express();
 const __dirname = dirname(fileURLToPath(import.meta.url));
+const FileStore = fs(session);
 
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser('ap-ple-pi-e'));
+
+// express session
+app.use(session({
+  name: 'session-id',
+  secret: 'app-lep-ie',
+  saveUninitialized: false,
+  resave: false,
+  store: new FileStore()
+}))
 
 // basic authentication
 const auth = (req, res, next) => {
-  console.log(req.signedCookies);
+  console.log(req.session);
 
-  if (!req.signedCookies.user) {
+  if (!req.session.user) {
     let authHeader = req.headers.authorization;
 
     if (!authHeader) {
@@ -55,7 +67,7 @@ const auth = (req, res, next) => {
     const password = auth[1];
 
     if (username === 'admin' && password === 'password') {
-      res.cookie('user', 'admin', { signed: true });
+      req.session.user = 'admin';
       next();
     }
     else {
@@ -66,7 +78,7 @@ const auth = (req, res, next) => {
     };
   }
   else {
-    if (req.signedCookies.user === 'admin') {
+    if (req.session.user === 'admin') {
       next();
     }
     else {
