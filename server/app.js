@@ -2,11 +2,12 @@ import createError from 'http-errors';
 import express from 'express';
 import path, { dirname } from 'path';
 import { fileURLToPath } from 'url';
-import cookieParser from 'cookie-parser';
 import logger from 'morgan';
 import mongoose from 'mongoose';
 import session from 'express-session';
 import fs from 'session-file-store';
+import passport from 'passport';
+import authenticate from './authenticate.js';
 
 // router imports
 import indexRouter from './routes/index.js';
@@ -45,7 +46,10 @@ app.use(session({
   saveUninitialized: false,
   resave: false,
   store: new FileStore()
-}))
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 // accessible routes without authentication
 app.use('/', indexRouter);
@@ -54,21 +58,14 @@ app.use('/users', userRouter);
 // basic authentication
 const auth = (req, res, next) => {
 
-  if (!req.session.user) {
+  if (!req.user) {
     const err = new Error('You are not authenticated');
     res.setHeader('WWW-Authenticate', 'Basic');
     err.status = 401;
     return next(err);
   }
   else {
-    if (req.session.user === 'authenticated') {
       next();
-    }
-    else {
-      const err = new Error('You are not authenticated');
-      err.status = 401;
-      return next(err);
-    };
   };
 };
 
