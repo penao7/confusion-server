@@ -2,6 +2,7 @@ import express from 'express';
 import User from '../models/user.js';
 import passport from 'passport';
 import { getToken } from '../authenticate.js';
+import user from '../models/user.js';
 
 var userRouter = express.Router();
 userRouter.use(express.json());
@@ -12,14 +13,28 @@ userRouter.get('/', (req, res, next) => {
 });
 
 userRouter.post('/signup', (req, res) => {
-  User.register(new User({ username: req.body.username }), req.body.password,
-    (err) => {
+  User.register(new User({username: req.body.username }), req.body.password,
+    (err, user) => {
       if (err) {
+        res.statusCode= 500,
         res.json({ err: err })
       }
       else {
-        passport.authenticate('local')(req, res, () => {
-          res.json({ success: true, status: 'Registration Succesful' });
+        if(req.body.firstname) {
+          user.firstname = req.body.firstname;
+        };
+        if(req.body.lastname) {
+          user.lastname = req.body.lastname
+        };
+        user.save(err => {
+          if(err) {
+            res.statusCode = 500;
+            res.json({err: err});
+            return;
+          };
+          passport.authenticate('local')(req, res, () => {
+            res.json({ success: true, status: 'Registration Succesful' });
+          });
         });
       };
     });
