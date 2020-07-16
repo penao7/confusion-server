@@ -4,10 +4,10 @@ import path, { dirname } from 'path';
 import { fileURLToPath } from 'url';
 import logger from 'morgan';
 import mongoose from 'mongoose';
-import session from 'express-session';
 import fs from 'session-file-store';
 import passport from 'passport';
-import authenticate from './authenticate.js';
+import config from './config.js';
+import { verifyUser } from './authenticate.js';
 
 // router imports
 import indexRouter from './routes/index.js';
@@ -17,7 +17,7 @@ import promoRouter from './routes/promoRouter.js';
 import leaderRouter from './routes/leaderRouter.js';
 
 // mongoDB connection
-const url = 'mongodb://localhost:27017/conFusion';
+const url = config.mongoUrl;
 const connect = mongoose.connect(url, {
   useUnifiedTopology: true,
   useNewUrlParser: true,
@@ -33,46 +33,18 @@ connect.then((db) => {
 
 const app = express();
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const FileStore = fs(session);
+app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-
-// express session
-app.use(session({
-  name: 'session-id',
-  secret: 'app-lep-ie',
-  saveUninitialized: false,
-  resave: false,
-  store: new FileStore()
-}));
-
 app.use(passport.initialize());
-app.use(passport.session());
 
 // accessible routes without authentication
 app.use('/', indexRouter);
 app.use('/users', userRouter);
 
-// basic authentication
-const auth = (req, res, next) => {
-
-  if (!req.user) {
-    const err = new Error('You are not authenticated');
-    res.setHeader('WWW-Authenticate', 'Basic');
-    err.status = 401;
-    return next(err);
-  }
-  else {
-      next();
-  };
-};
-
-app.use(auth);
-
 // other routes
-app.use(express.static(path.join(__dirname, 'public')));
 app.use('/dishes', dishRouter);
 app.use('/promotions', promoRouter);
 app.use('/leaders', leaderRouter);

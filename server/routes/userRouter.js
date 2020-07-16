@@ -1,6 +1,7 @@
 import express from 'express';
 import User from '../models/user.js';
 import passport from 'passport';
+import { getToken } from '../authenticate.js';
 
 var userRouter = express.Router();
 userRouter.use(express.json());
@@ -11,8 +12,6 @@ userRouter.get('/', (req, res, next) => {
 });
 
 userRouter.post('/signup', (req, res) => {
-  console.log(req.body.username);
-  console.log(req.body.password);
   User.register(new User({ username: req.body.username }), req.body.password,
     (err) => {
       if (err) {
@@ -27,7 +26,10 @@ userRouter.post('/signup', (req, res) => {
 });
 
 userRouter.post('/login', passport.authenticate('local'), (req, res) => {
-  res.json({ success: true, status: 'You are successfully logged in' });
+
+  const token = getToken({ _id: req.user._id });
+  res.json({ success: true, token: token, status: 'You are successfully logged in' });
+
 });
 
 userRouter.get('/logout', (req, res, next) => {
