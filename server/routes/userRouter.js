@@ -3,20 +3,24 @@ import User from '../models/user.js';
 import passport from 'passport';
 import { getToken } from '../authenticate.js';
 import { verifyOrdinaryUser, verifyAdminUser } from '../authenticate.js';
+import { defaultCors as cors, corsWithOptions } from './cors.js';
 
 const userRouter = express.Router();
 userRouter.use(express.json());
 
 /* GET users listing. */
-userRouter.route('/')
-.get(verifyOrdinaryUser, verifyAdminUser, (req, res, next) => {
+userRouter.route('/', cors, verifyOrdinaryUser)
+.options(corsWithOptions, (req, res) => {
+  res.sendStatus(200);
+})
+.get(cors, verifyOrdinaryUser, verifyAdminUser, (req, res, next) => {
   User.find({})
     .then(user => {
       res.json(user);
     });
 });
 
-userRouter.post('/signup', (req, res) => {
+userRouter.post('/signup', corsWithOptions, (req, res) => {
   User.register(new User({username: req.body.username }), req.body.password,
     (err, user) => {
       if (err) {
@@ -44,14 +48,14 @@ userRouter.post('/signup', (req, res) => {
     });
 });
 
-userRouter.post('/login', passport.authenticate('local'), (req, res) => {
+userRouter.post('/login', corsWithOptions, passport.authenticate('local'), (req, res) => {
 
   const token = getToken({ _id: req.user._id });
   res.json({ success: true, token: token, status: 'You are successfully logged in' });
 
 });
 
-userRouter.get('/logout', (req, res, next) => {
+userRouter.get('/logout', corsWithOptions, (req, res, next) => {
   if (req.user) {
     req.session.destroy();
     res.clearCookie('session-id');

@@ -6,6 +6,7 @@ import logger from 'morgan';
 import mongoose from 'mongoose';
 import passport from 'passport';
 import config from './config.js';
+import cors from 'cors';
 
 // router imports
 import indexRouter from './routes/index.js';
