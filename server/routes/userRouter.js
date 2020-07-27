@@ -2,14 +2,18 @@ import express from 'express';
 import User from '../models/user.js';
 import passport from 'passport';
 import { getToken } from '../authenticate.js';
-import user from '../models/user.js';
+import { verifyOrdinaryUser, verifyAdminUser } from '../authenticate.js';
 
-var userRouter = express.Router();
+const userRouter = express.Router();
 userRouter.use(express.json());
 
 /* GET users listing. */
-userRouter.get('/', (req, res, next) => {
-  res.end('respond with a resource');
+userRouter.route('/')
+.get(verifyOrdinaryUser, verifyAdminUser, (req, res, next) => {
+  User.find({})
+    .then(user => {
+      res.json(user);
+    });
 });
 
 userRouter.post('/signup', (req, res) => {

@@ -1,6 +1,6 @@
 import express from 'express';
 import Promos from '../models/promotions.js';
-import { verifyUser } from '../authenticate.js';
+import { verifyOrdinaryUser, verifyAdminUser } from '../authenticate.js';
 
 const promoRouter = express();
 
@@ -12,18 +12,18 @@ promoRouter.route('/')
       }, err => next(err))
       .catch(err => next(err));
   })
-  .post(verifyUser, (req, res, next) => {
+  .post(verifyAdminUser, (req, res, next) => {
     Promos.create(req.body)
       .then(promo => {
         res.json(promo)
       }, err => next(err))
       .catch(err => next(err));
   })
-  .put(verifyUser, (req, res, next) => {
+  .put(verifyAdminUser, (req, res, next) => {
     res.statusCode = 403;
     res.end('PUT operation not supported on /promotions');
   })
-  .delete(verifyUser, (req, res, next) => {
+  .delete(verifyAdminUser, (req, res, next) => {
     Promos.deleteMany({})
       .then(resp => {
         res.json(resp)
@@ -41,13 +41,13 @@ promoRouter.route('/:promoId')
       }, err => next(err))
       .catch(err => next(err))
   })
-  .post(verifyUser, (req, res, next) => {
+  .post(verifyAdminUser, (req, res, next) => {
     res.statusCode = 403;
     res.end('POST operation not supported on /promotions/'
       + req.params.promoId
     );
   })
-  .put(verifyUser, (req, res, next) => {
+  .put(verifyAdminUser, (req, res, next) => {
     Promos.findByIdAndUpdate(req.params.promoId, {
       $set: req.body
     }, { new: true })
@@ -56,7 +56,7 @@ promoRouter.route('/:promoId')
       }, err => next(err))
       .catch(err => next(err))
   })
-  .delete(verifyUser, (req, res, next) => {
+  .delete(verifyAdminUser, (req, res, next) => {
     Promos.findByIdAndDelete(req.params.promoId)
       .then(resp => {
         res.json(resp);

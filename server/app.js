@@ -4,10 +4,8 @@ import path, { dirname } from 'path';
 import { fileURLToPath } from 'url';
 import logger from 'morgan';
 import mongoose from 'mongoose';
-import fs from 'session-file-store';
 import passport from 'passport';
 import config from './config.js';
-import { verifyUser } from './authenticate.js';
 
 // router imports
 import indexRouter from './routes/index.js';
@@ -32,6 +30,15 @@ connect.then((db) => {
 // express usage
 
 const app = express();
+
+app.all('*', (req, res, next) => {
+  if (req.secure) {
+    return next();
+  } else {
+    res.redirect(307, 'https://' + req.hostname + ':' + app.get('secPort') + req.url);
+  };
+});
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
 app.use(express.static(path.join(__dirname, 'public')));
 

@@ -1,6 +1,6 @@
 import express from 'express';
 import Leaders from '../models/leaders.js';
-import { verifyUser } from '../authenticate.js';
+import { verifyOrdinaryUser, verifyAdminUser } from '../authenticate.js';
 
 const leaderRouter = express();
 
@@ -12,18 +12,18 @@ leaderRouter.route('/')
       }, (err) => next(err))
       .catch((err) => next(err));
   })
-  .post(verifyUser, (req, res, next) => {
+  .post(verifyAdminUser, (req, res, next) => {
     Leaders.create(req.body)
       .then((leader) => {
         res.json(leader);
       }, (err) => next(err))
       .catch((err) => next(err));
   })
-  .put((req, res, next) => {
+  .put(verifyAdminUser, (req, res, next) => {
     res.statusCode = 403;
     res.end('PUT operation not supported on /leaders');
   })
-  .delete(verifyUser, (req, res, next) => {
+  .delete(verifyAdminUser, (req, res, next) => {
     Leaders.deleteMany({})
       .then((resp) => {
         res.json(resp);
@@ -41,13 +41,13 @@ leaderRouter.route('/:leaderId')
       }, (err) => next(err))
       .catch(err => next(err))
   })
-  .post(verifyUser, (req, res, next) => {
+  .post(verifyAdminUser, (req, res, next) => {
     res.statusCode = 403;
     res.end('POST operation not supported on /leaders/'
       + req.params.leaderId
     );
   })
-  .put(verifyUser, (req, res, next) => {
+  .put(verifyAdminUser, (req, res, next) => {
     Leaders.findByIdAndUpdate(req.params.leaderId, {
       $set: req.body
     }, { new: true })
@@ -56,7 +56,7 @@ leaderRouter.route('/:leaderId')
       }, (err) => next(err))
       .catch(err => next(err))
   })
-  .delete(verifyUser, (req, res) => {
+  .delete(verifyAdminUser, (req, res) => {
     Leaders.findOneAndDelete(req.params.leaderId)
       .then((resp) => {
         res.json(resp);
