@@ -10,7 +10,7 @@ promoRouter.route('/')
     res.sendStatus(200);
   })
   .get(cors, (req, res, next) => {
-    Promos.find({})
+    Promos.find(req.query)
       .then((promos) => {
         res.json(promos);
       }, err => next(err))

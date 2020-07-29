@@ -6,7 +6,6 @@ import logger from 'morgan';
 import mongoose from 'mongoose';
 import passport from 'passport';
 import config from './config.js';
-import cors from 'cors';
 
 // router imports
 import indexRouter from './routes/index.js';
@@ -15,6 +14,8 @@ import dishRouter from './routes/dishRouter.js';
 import promoRouter from './routes/promoRouter.js';
 import leaderRouter from './routes/leaderRouter.js';
 import uploadRouter from './routes/uploadRouter.js';
+import favouriteRouter from './routes/favouriteRouter.js';
+import commentRouter from './routes/commentRouter.js';
 
 // mongoDB connection
 const url = config.mongoUrl;
@@ -30,7 +31,6 @@ connect.then((db) => {
 }, (err) => { console.log(err) });
 
 // express usage
-
 const app = express();
 
 app.all('*', (req, res, next) => {
@@ -55,8 +55,10 @@ app.use('/users', userRouter);
 
 // other routes
 app.use('/dishes', dishRouter);
+app.use('/comments', commentRouter);
 app.use('/promotions', promoRouter);
 app.use('/leaders', leaderRouter);
+app.use('/favourites', favouriteRouter);
 app.use('/imageUpload', uploadRouter);
 
 // catch 404 and forward to error handler
