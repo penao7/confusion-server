@@ -1,10 +1,6 @@
 import mongoose from 'mongoose';
 const Schema = mongoose.Schema;
 
-const dishSchema = new Schema({
-
-})
-
 const favouriteSchema = new Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,

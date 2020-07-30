@@ -1,5 +1,5 @@
 import express from 'express';
-import Comments from '../models/dishes.js';
+import Comments from '../models/comments.js';
 import { verifyOrdinaryUser, verifyAdminUser } from '../authenticate.js';
 import { defaultCors as cors, corsWithOptions } from './cors.js';
 
@@ -107,10 +107,10 @@ commentRouter.route('/:commentId')
             return next(err);
           };
           Comments.findByIdAndRemove(req.params.commentId)
-          .then(resp => {
-            res.json(resp);
-          }, err => next(err))
-          .catch(err => next(err));
+            .then(resp => {
+              res.json(resp);
+            }, err => next(err))
+            .catch(err => next(err));
         }
         else {
           const err = new Error('Comment ' + req.params.commentId + ' not found');

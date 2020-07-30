@@ -26,7 +26,7 @@ const connect = mongoose.connect(url, {
   useFindAndModify: false
 });
 
-connect.then((db) => {
+connect.then(() => {
   console.log('Connection established to the MongoDB');
 }, (err) => { console.log(err) });
 

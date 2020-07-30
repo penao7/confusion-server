@@ -16,7 +16,7 @@ promoRouter.route('/')
       }, err => next(err))
       .catch(err => next(err));
   })
-  .post(corsWithOptions, verifyAdminUser, (req, res, next) => {
+  .post(corsWithOptions, verifyOrdinaryUser, verifyAdminUser, (req, res, next) => {
     Promos.create(req.body)
       .then(promo => {
         res.json(promo)
@@ -27,7 +27,7 @@ promoRouter.route('/')
     res.statusCode = 403;
     res.end('PUT operation not supported on /promotions');
   })
-  .delete(corsWithOptions, verifyAdminUser, (req, res, next) => {
+  .delete(corsWithOptions, verifyOrdinaryUser, verifyAdminUser, (req, res, next) => {
     Promos.deleteMany({})
       .then(resp => {
         res.json(resp)
@@ -48,13 +48,13 @@ promoRouter.route('/:promoId')
       }, err => next(err))
       .catch(err => next(err))
   })
-  .post(corsWithOptions, verifyAdminUser, (req, res, next) => {
+  .post(corsWithOptions, verifyOrdinaryUser, verifyAdminUser, (req, res, next) => {
     res.statusCode = 403;
     res.end('POST operation not supported on /promotions/'
       + req.params.promoId
     );
   })
-  .put(corsWithOptions, verifyAdminUser, (req, res, next) => {
+  .put(corsWithOptions, verifyOrdinaryUser, verifyAdminUser, (req, res, next) => {
     Promos.findByIdAndUpdate(req.params.promoId, {
       $set: req.body
     }, { new: true })
@@ -63,7 +63,7 @@ promoRouter.route('/:promoId')
       }, err => next(err))
       .catch(err => next(err))
   })
-  .delete(corsWithOptions, verifyAdminUser, (req, res, next) => {
+  .delete(corsWithOptions, verifyOrdinaryUser, verifyAdminUser, (req, res, next) => {
     Promos.findByIdAndDelete(req.params.promoId)
       .then(resp => {
         res.json(resp);

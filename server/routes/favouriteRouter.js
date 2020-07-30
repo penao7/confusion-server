@@ -118,17 +118,10 @@ favouriteRouter.route('/:dishId')
             err.status = 403;
             next(err);
           };
-        }
-        else {
-          Favourites.create({ user: req.user._id, dishes: req.params.dishId })
-            .then(favourites => {
-              Favourites.findById(favourites._id)
-                .populate('user dishes')
-                .then(favourites => {
-                  console.log('Favourite created!');
-                  res.json(favourites)
-                });
-            }, err => next(err))
+        } else {
+          const err = new Error('Favourite account not found')
+          err.status = 404;
+          next(err)
         }
       }).catch(err => next(err));
   })

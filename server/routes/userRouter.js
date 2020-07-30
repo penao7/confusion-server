@@ -1,5 +1,6 @@
 import express from 'express';
 import User from '../models/user.js';
+import Favourites from '../models/favourites.js';
 import passport from 'passport';
 import { getToken } from '../authenticate.js';
 import { verifyOrdinaryUser, verifyAdminUser } from '../authenticate.js';
@@ -44,9 +45,15 @@ userRouter.post('/signup', corsWithOptions, (req, res) => {
             res.json({ err: err });
             return;
           };
-          passport.authenticate('local')(req, res, () => {
-            res.json({ success: true, status: 'Registration Succesful' });
-          });
+          User.findOne({ username: req.body.username })
+            .then(user => {
+              Favourites.create({ user: user._id, dishes: [] })
+                .then(favourite => {
+                  passport.authenticate('local')(req, res, () => {
+                    res.json({ success: true, status: 'Registration Succesful' });
+                  });
+                });
+            });
         });
       };
     });
@@ -88,7 +95,7 @@ userRouter.get('/logout', corsWithOptions, (req, res, next) => {
   };
 });
 
-userRouter.get('/facebook/token', passport.authenticate('facebook-token'), (req, res) => {
+userRouter.get('/facebook/token', corsWithOptions, passport.authenticate('facebook-token'), (req, res) => {
   if (req.user) {
     const token = getToken({ _id: req.user._id })
     res.json({ success: true, token: token, status: 'You are successfully logged in' });

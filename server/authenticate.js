@@ -5,6 +5,7 @@ import JwtPassport from 'passport-jwt';
 import jwt from 'jsonwebtoken';
 import FacebookTokenStrategy from 'passport-facebook-token';
 import config from './config.js';
+import Favourites from './models/favourites.js';
 
 
 const JwtStrategy = JwtPassport.Strategy;
@@ -59,7 +60,7 @@ export const facebookPassport = passport.use(new FacebookTokenStrategy({
   clientSecret: config.facebook.clientSecret
 }, (accessToken, refreshToken, profile, done) => {
   User.findOne({ facebookId: profile.id }, (err, user) => {
-    console.log(profile.id);
+    console.log(user);
     if (err) {
       return done(err, false);
     };
@@ -69,7 +70,6 @@ export const facebookPassport = passport.use(new FacebookTokenStrategy({
     else {
       user = new User({ username: profile.displayName });
       user.facebookId = profile.id;
-      user.email = profile.email;
       user.firstname = profile.name.givenName;
       user.lastname = profile.name.familyName;
       user.save((err, user) => {
@@ -77,7 +77,13 @@ export const facebookPassport = passport.use(new FacebookTokenStrategy({
           return done(err, false);
         }
         else {
-          return done(null, user);
+          User.findOne({ facebookId: profile.id })
+            .then(user => {
+              Favourites.create({ user: user._id, dishes: [] })
+                .then(favourite => {
+                  return done(null, user);
+                });
+            });
         };
       });
     };
