@@ -18,7 +18,7 @@ The full authentication code can be inspected [here](server/authenticate.js).
 
 Dishes, promotion and leaders can be set as `featured` by changing featured value to `true` in the database.
 
-## Routes
+## Enpoints
 
 ### Users
 
